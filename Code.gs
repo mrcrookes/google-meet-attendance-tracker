@@ -25,17 +25,17 @@
 *
 *************************************************/
 // google sheet to store aggregate CSV info
-var SHEET_URL = "replace_with_full_line_to_spreadsheet";
+var SHEET_URL = "https://docs.google.com/spreadsheets/d/10xYoE--5qFUg4t34jZdngcqMQpFvOAlVpmpq_CWAuWM/";
 var SHEET_TAB_NAME = "Sheet1";
 
 // folder ID for where to look for CSV files to process
 // IE: the last part of the folder URL, like: https://drive.google.com/drive/u/0/folders/1fzw_Vx8uoidshda_B6SOFjEI_Co
-var PENDING_CSV_DRIVE_FOLDER_ID = "replace_with_source_folder_code";
+var PENDING_CSV_DRIVE_FOLDER_ID = "1H6FXeqC5LJoTSheKkYTn8v7LfPFYqfS2";
 
 // trash files after processing, or just move to another drive
 var TRASH_FILES_AFTER_MOVE = false; // false|true
 // if TRASH_FILES_AFTER_MOVE  is false, then put them into this folder ID
-var PROCESSED_CSV_DRIVE_FOLDER_ID = "replace_with_sink_folder_code";
+var PROCESSED_CSV_DRIVE_FOLDER_ID = "1pjcHFEqV8CWcyRAcdyFQDySjK6o2j1Py";
 
 /*************************************************
 *
@@ -50,7 +50,7 @@ var PROCESSED_CSV_DRIVE_FOLDER_ID = "replace_with_sink_folder_code";
 function set_sheet_headers() {
   
   var sheet = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName(SHEET_TAB_NAME);
-  sheet.appendRow(["Code","Date","Email","Time Joined","Time Exited"]);
+  sheet.appendRow(["Code","Date","Email","Time Joined","Time Exited", "Duration (nb. Breakouts not counted)"]);
   
 }
 
@@ -107,8 +107,21 @@ function importCSVbyFileId(file_id) {
     var MEETING_NAME = AFTER_FIRST_SPACE.substr(AFTER_FIRST_SPACE.indexOf(' ')+1).replace(" - Attendance Report.csv", "");
     var MEETING_DATE = file.getName().substring(0, 10);
 
+    // explode the time column value so we can tell if it's a string of hours, mins, or secs (or combination)
+    var TIME_ARRAY = csvData[i][2].split(' '); // split string on comma space
+
+    if(TIME_ARRAY.length == 4) {
+      var DURATION_MINS = parseInt(TIME_ARRAY[0]) * 60 + parseInt(TIME_ARRAY[2]);
+    }
+
+    if(TIME_ARRAY.length == 2) {
+      var DURATION_MINS = parseInt(TIME_ARRAY[0]);
+    } 
+
+    Logger.log(DURATION_MINS)
+
     // append the data to the sheet
-    ss.appendRow([MEETING_NAME,MEETING_DATE,csvData[i][1],csvData[i][3],csvData[i][4]]);
+    ss.appendRow([MEETING_NAME,MEETING_DATE,csvData[i][1],csvData[i][3],csvData[i][4],DURATION_MINS]);
   }
   
 }
