@@ -25,17 +25,17 @@
 *
 *************************************************/
 // google sheet to store aggregate CSV info
-var SHEET_URL = "https://docs.google.com/spreadsheets/d/your-document-id";
-var SHEET_TAB_NAME = "data";
+var SHEET_URL = "replace_with_full_line_to_spreadsheet";
+var SHEET_TAB_NAME = "Sheet1";
 
 // folder ID for where to look for CSV files to process
 // IE: the last part of the folder URL, like: https://drive.google.com/drive/u/0/folders/1fzw_Vx8uoidshda_B6SOFjEI_Co
-var PENDING_CSV_DRIVE_FOLDER_ID = "1fzw_Vx8uoidshda_B6SOFjEI_Co";
+var PENDING_CSV_DRIVE_FOLDER_ID = "replace_with_source_folder_code";
 
 // trash files after processing, or just move to another drive
 var TRASH_FILES_AFTER_MOVE = false; // false|true
 // if TRASH_FILES_AFTER_MOVE  is false, then put them into this folder ID
-var PROCESSED_CSV_DRIVE_FOLDER_ID = "1fzw_Vxy45htrsFjEI_D";
+var PROCESSED_CSV_DRIVE_FOLDER_ID = "replace_with_sink_folder_code";
 
 /*************************************************
 *
@@ -50,7 +50,7 @@ var PROCESSED_CSV_DRIVE_FOLDER_ID = "1fzw_Vxy45htrsFjEI_D";
 function set_sheet_headers() {
   
   var sheet = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName(SHEET_TAB_NAME);
-  sheet.appendRow(["File_Name","File_Id","Meeting_Name","Meeting_Date","Name","Email","Duration","Time Joined","Time Exited","Date_Time_Joined","Date_Time_Exited","Duration_Seconds","Meeting_Owner_Email"]);
+  sheet.appendRow(["Code","Date","Email","Time Joined","Time Exited"]);
   
 }
 
@@ -60,9 +60,10 @@ function process_all_pending_csv_files(){
   var list = [];
   //list.push(['File_Name','File_Id']); // uncomment if you want to set a header row here
   var files = folder.getFiles();
+  
+  
   while (files.hasNext()){
     var file = files.next();
-    
     //import the CSV data into the sheet
     importCSVbyFileId(file.getId());
 
@@ -105,26 +106,9 @@ function importCSVbyFileId(file_id) {
     var AFTER_FIRST_SPACE = file.getName().substr(file.getName().indexOf(' ')+1);
     var MEETING_NAME = AFTER_FIRST_SPACE.substr(AFTER_FIRST_SPACE.indexOf(' ')+1).replace(" - Attendance Report.csv", "");
     var MEETING_DATE = file.getName().substring(0, 10);
-    var JOINED = "=concatenate(text(\"" + MEETING_DATE + "\",\"mm/dd/yyyy\")&\" \"&text(\"" + csvData[i][3] + "\",\"hh:mm:ss\"))";
-    var EXITED = "=concatenate(text(\"" + MEETING_DATE + "\",\"mm/dd/yyyy\")&\" \"&text(\"" + csvData[i][4] + "\",\"hh:mm:ss\"))";
-
-    // explode the time column value so we can tell if it's a string of hours, mins, or secs (or combination)
-    var TIME_ARRAY = csvData[i][2].split(' '); // split string on comma space
-    if(TIME_ARRAY[1] == "hr") {
-      var DURATION_MINS = parseInt(TIME_ARRAY[0]) * 60 * 60;
-    } 
-    if(TIME_ARRAY[1] == "hr" && TIME_ARRAY[3] == "min") {
-      var DURATION_MINS = parseInt(TIME_ARRAY[0]) * 60 * 60 + parseInt(TIME_ARRAY[2]) * 60;
-    } 
-    if(TIME_ARRAY[1] == "min") {
-      var DURATION_MINS = parseInt(csvData[i][2].substr(0, csvData[i][2].indexOf(' '))) * 60;
-    } 
-    if (TIME_ARRAY[1] == "sec") {
-      var DURATION_MINS = parseInt(csvData[i][2]);
-    }
 
     // append the data to the sheet
-    ss.appendRow([file.getName(),file_id,MEETING_NAME,MEETING_DATE,csvData[i][0],csvData[i][1],csvData[i][2],csvData[i][3],csvData[i][4], JOINED, EXITED, DURATION_MINS,OWNER_EMAIL]);
+    ss.appendRow([MEETING_NAME,MEETING_DATE,csvData[i][1],csvData[i][3],csvData[i][4]]);
   }
   
 }
