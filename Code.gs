@@ -25,17 +25,17 @@
 *
 *************************************************/
 // google sheet to store aggregate CSV info
-var SHEET_URL = "https://docs.google.com/spreadsheets/d/10xYoE--5qFUg4t34jZdngcqMQpFvOAlVpmpq_CWAuWM/";
+var SHEET_URL = "replace_with_full_line_to_spreadsheet";
 var SHEET_TAB_NAME = "Sheet1";
 
 // folder ID for where to look for CSV files to process
 // IE: the last part of the folder URL, like: https://drive.google.com/drive/u/0/folders/1fzw_Vx8uoidshda_B6SOFjEI_Co
-var PENDING_CSV_DRIVE_FOLDER_ID = "1H6FXeqC5LJoTSheKkYTn8v7LfPFYqfS2";
+var PENDING_CSV_DRIVE_FOLDER_ID = "replace_with_source_folder_code";
 
 // trash files after processing, or just move to another drive
 var TRASH_FILES_AFTER_MOVE = false; // false|true
 // if TRASH_FILES_AFTER_MOVE  is false, then put them into this folder ID
-var PROCESSED_CSV_DRIVE_FOLDER_ID = "1pjcHFEqV8CWcyRAcdyFQDySjK6o2j1Py";
+var PROCESSED_CSV_DRIVE_FOLDER_ID = "replace_with_source_folder_code";
 
 /*************************************************
 *
@@ -58,9 +58,7 @@ function process_all_pending_csv_files(){
   var ss = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName(SHEET_TAB_NAME);
   var folder = DriveApp.getFolderById(PENDING_CSV_DRIVE_FOLDER_ID);
   var list = [];
-  //list.push(['File_Name','File_Id']); // uncomment if you want to set a header row here
   var files = folder.getFiles();
-  
   
   while (files.hasNext()){
     var file = files.next();
@@ -68,9 +66,7 @@ function process_all_pending_csv_files(){
     importCSVbyFileId(file.getId());
 
     // comment the next section out if you're testing and want to leave the files in place
-
     if(TRASH_FILES_AFTER_MOVE) {
-
       // trash the file
       file.setTrashed(true);
 
@@ -101,8 +97,8 @@ function importCSVbyFileId(file_id) {
 
   // loop through the CSV rows skipping the first row headers
   for (var i = 1; i < csvData.length; i++) {
+   
     // build the row
-
     var AFTER_FIRST_SPACE = file.getName().substr(file.getName().indexOf(' ')+1);
     var MEETING_NAME = AFTER_FIRST_SPACE.substr(AFTER_FIRST_SPACE.indexOf(' ')+1).replace(" - Attendance Report.csv", "");
     var MEETING_DATE = file.getName().substring(0, 10);
@@ -117,11 +113,9 @@ function importCSVbyFileId(file_id) {
     if(TIME_ARRAY.length == 2) {
       var DURATION_MINS = parseInt(TIME_ARRAY[0]);
     } 
-
-    Logger.log(DURATION_MINS)
-
+    
     // append the data to the sheet
-    ss.appendRow([MEETING_NAME,MEETING_DATE,csvData[i][1],csvData[i][3],csvData[i][4],DURATION_MINS]);
+    ss.appendRow([MEETING_NAME, MEETING_DATE, csvData[i][1], csvData[i][3], csvData[i][4], DURATION_MINS]);
   }
   
 }
