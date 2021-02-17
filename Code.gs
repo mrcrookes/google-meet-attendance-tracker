@@ -85,14 +85,6 @@ function importCSVbyFileId(file_id) {
   var ss = SpreadsheetApp.openByUrl(SHEET_URL).getSheetByName(SHEET_TAB_NAME);
   var file = DriveApp.getFileById(file_id);
   
-  var owner = file.getOwner();
-  try {
-      var OWNER_EMAIL = owner.getEmail();
-    } catch (e) {
-      var OWNER_EMAIL = 'NULL';
-      Logger.log('Error owner.getEmail() | CAUGHT EXCEPTION:' + e);
-    }
-
   var csvData = Utilities.parseCsv(file.getBlob().getDataAsString());
 
   // loop through the CSV rows skipping the first row headers
